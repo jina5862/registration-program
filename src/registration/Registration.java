@@ -6,23 +6,31 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
-
 public class Registration {
-	static String[] CourseList = new String[10];
+	static Course_details[] CourseList = new Course_details[10];
 	
 	public static void readFile() throws IOException {
 		
 		int i=0;
 		BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\±Í¿èµð¿è\\Documents\\registration-program\\src\\registration\\courses offered"));
 		try {
+			br.readLine();
 			while(true) {
 				String line = br.readLine();
 				if (line==null) break;
+				
 				System.out.println(line);
-				StringTokenizer tk= new StringTokenizer(line, " ");
-				String token;
-				token = tk.nextToken();
-				CourseList[i]=token;
+				StringTokenizer tk= new StringTokenizer(line, "  ");
+				
+				String code=tk.nextToken();
+				String name=tk.nextToken();
+				String time=tk.nextToken();
+				String prof=tk.nextToken();
+				String room=tk.nextToken();
+				String prereq=tk.nextToken();
+				
+				Course_details course = new Course_details(code, name, time, prof, room, prereq);
+				CourseList[i]=course;
 				i++;
 			}
 		}catch (IOException e){
