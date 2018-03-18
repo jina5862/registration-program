@@ -10,6 +10,9 @@ public class Course_details {
 	private int credit;
 	
 	Course_details(){};
+	Course_details(String cNo){
+		this.cNo=cNo;
+	}
 	Course_details(String cNo, String cTitle){
 		this.cNo = cNo;
 		this.cTitle=cTitle;

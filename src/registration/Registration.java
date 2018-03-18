@@ -3,15 +3,15 @@ package registration;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Registration {
-	static Course_details[] CourseList = new Course_details[10];
-	static Course_details[] StudentInfo = new Course_details[20];
-	static int totalCredit = 0;
+	static ArrayList<Course_details> CourseList = new ArrayList<Course_details>();
+	static ArrayList<Course_details> StudentInfo = new ArrayList<Course_details>();
 
-	public static void readFile(Course_details[] courses, String filename) throws IOException {
+	public static void readFile(ArrayList<Course_details> courses, String filename) throws IOException {
 		String path = "C:/Users/귀욤디욤/Documents/registration-program/src/registration/"+filename;
 
 		BufferedReader br = new BufferedReader(new FileReader(path));
@@ -33,7 +33,7 @@ public class Registration {
 					int credit= Integer.valueOf(tk.nextToken());
 
 					Course_details course = new Course_details(code, name, time, prof, room, prereq, credit);
-					courses[i]=course;
+					courses.add(course);
 				}
 			}
 			else if(filename.equals("student_info")) {
@@ -43,10 +43,9 @@ public class Registration {
 
 					StringTokenizer tk= new StringTokenizer(line, "  ");
 					String code = tk.nextToken();
-					String name = tk.nextToken();
 
-					Course_details course = new Course_details(code, name);
-					courses[i]=course;
+					Course_details course = new Course_details(code);
+					courses.add(course);
 
 				}
 			}
@@ -57,17 +56,23 @@ public class Registration {
 			br.close();}
 	}	
 
-	public static boolean prereq_satisfied(Course_details[] student_info,String prereq) {
-		for(Course_details courses: student_info) {
-			if(courses.getCNo().equals(prereq)) {
-				return true;
-			}
+	public static boolean prereq_satisfied(ArrayList<Course_details> student_info,String prereq) {
+		Course_details check = new Course_details(prereq);
+		if(student_info.contains(check)) {
+			return true;
+		}
+		else return false;
+	}
+	
+	public static boolean offered_class(String cNo) {
+		for(Course_details course : CourseList) {
+			if(course.getCNo().equals(cNo)) {return true;}
 		}
 		return false;
 	}
-
 	public static void main(String[] args) {
-		String[] ApplicationList = new String[15] ;
+		ArrayList<String> ApplicationList = new ArrayList<String>() ;
+		int credit =0;
 		Scanner sc = new Scanner(System.in);
 
 		System.out.println("<2018 1학기 수강신청>\n");
@@ -87,52 +92,59 @@ public class Registration {
 
 		System.out.println("\n수강신청할 과목 코드를 입력하시고 모든 과목 입력이 끝나면 'done' 를 입력하여 결과를 확인하시오");
 		System.out.println("_________________________________________________________\n");
+		
 		for(int i=0;;i++) {
 			System.out.print(i+1+" : ");
 			String course=sc.next();
-
-			for(int j=0;j<10;j++) {
-				if(CourseList[j].getCNo().equals(course)) {
-					totalCredit+=CourseList[j].getCredit();
+			if(!(offered_class(course)==true||course.equals("done"))) {
+				System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하시고 입력하세요. ");
+				i--;
+				continue;
+			}
+			for(Course_details cNo: CourseList) {
+				if(cNo.getCNo().equals(course)) {
+					credit+=cNo.getCredit();
 				}
 			}
-			if(totalCredit>24) {
+			if(credit>24) {
 				System.out.println("신청 가능한 학점(24학점)을 초과하셨습니다. ");
 			}
 
 			if(course.equals("done")){
-				if(totalCredit<9) {
+				if(credit<9) {
 					System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
 				}
 				break;
 			}
 
 			else{
-				ApplicationList[i]= course;
+				ApplicationList.add(course);
 			}
 		}
-		/*
+		
+		System.out.println("총 "+credit+" 학점을 신청하였습니다. \n");
+		System.out.println("________________________________________________\n");	
+
+		// 선수 과목 수강 여부 확인
 		for(String course : ApplicationList) {
-			for(int i=0;i<10;i++) {
-				if(CourseList[i].getCNo().equals(course)) {
-					String prereq = CourseList[i].getPrereq();
-					if(prereq_satisfied(StudentInfo, prereq)) {
-						continue;
-					}
+			for(Course_details check : CourseList) {
+				if(check.getCNo().equals(course)) {
+					String prereq =check.getPrereq();
+					if(prereq.equals("null")) {break;}
 					else {
-						System.out.println("선수 과목을 수강하지 않으셨습니다! ");
-						System.out.println("선수 과목 : "+ prereq);
+						if(prereq_satisfied(StudentInfo,prereq )==false) {
+							System.out.println("선수 과목을 수강하지 않으셨습니다. ");
+							System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
+						}
 					}
 				}
 			}
 		}
-		 */
 
 		System.out.println("________________________________________________\n");	
 		System.out.println("수강신청이 정상적으로 처리되었습니다. \n수강신청 과목 : \n");
-		for(int i=0;ApplicationList[i]!=null;i++) {
-
-			System.out.println(ApplicationList[i]);
+		for(String cno: ApplicationList) {
+			System.out.println(cno);
 		}
 
 	}
