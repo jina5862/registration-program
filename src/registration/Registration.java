@@ -56,14 +56,28 @@ public class Registration {
 			br.close();}
 	}	
 
-	public static boolean prereq_satisfied(ArrayList<Course_details> student_info,String prereq) {
-		Course_details check = new Course_details(prereq);
-		if(student_info.contains(check)) {
-			return true;
+	public static boolean prereq_satisfied(ArrayList<String> AList) {
+		for(String course : AList) {
+			for(Course_details check : CourseList) {
+				if(check.getCNo().equals(course)) {
+					String prereq =check.getPrereq();
+					Course_details checkD = new Course_details(prereq);
+					if(prereq.equals("null")) {break;}
+					else {
+						if(StudentInfo.contains(checkD)!=true) {
+							System.out.println("선수 과목을 수강하지 않으셨습니다. ");
+							System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
+							return false;
+						}
+					}
+				}
+			}
 		}
-		else return false;
+		return true;
 	}
-	
+
+
+
 	public static boolean offered_class(String cNo) {
 		for(Course_details course : CourseList) {
 			if(course.getCNo().equals(cNo)) {return true;}
@@ -92,54 +106,56 @@ public class Registration {
 
 		System.out.println("\n수강신청할 과목 코드를 입력하시고 모든 과목 입력이 끝나면 'done' 를 입력하여 결과를 확인하시오");
 		System.out.println("_________________________________________________________\n");
-		
-		for(int i=0;;i++) {
-			System.out.print(i+1+" : ");
-			String course=sc.next();
-			if(!(offered_class(course)==true||course.equals("done"))) {
-				System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하시고 입력하세요. ");
-				i--;
-				continue;
-			}
-			for(Course_details cNo: CourseList) {
-				if(cNo.getCNo().equals(course)) {
-					credit+=cNo.getCredit();
-				}
-			}
-			if(credit>24) {
-				System.out.println("신청 가능한 학점(24학점)을 초과하셨습니다. ");
-			}
 
-			if(course.equals("done")){
-				if(credit<9) {
-					System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
+		while(true) {
+			for(int i=0;;i++) {
+				System.out.print(i+1+" : ");
+				String course=sc.next();
+				if(!(offered_class(course)==true||course.equals("done"))) {
+					System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하시고 입력하세요. ");
+					i--;
+					continue;
 				}
+				for(Course_details cNo: CourseList) {
+					if(cNo.getCNo().equals(course)) {
+						credit+=cNo.getCredit();
+					}
+				}
+				if(credit>24) {
+					System.out.println("신청 가능한 학점(24학점)을 초과하셨습니다. ");
+				}
+
+				if(course.equals("done")){
+					if(credit<9) {
+						System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
+					}
+					break;
+				}
+
+				else{
+					ApplicationList.add(course);
+				}
+
+			}
+			
+			if(prereq_satisfied(ApplicationList)==true) {
 				break;
 			}
-
-			else{
-				ApplicationList.add(course);
+			else {
+				System.out.println("다시 신청하세요. ");
+				int a =ApplicationList.size();
+				for(int j=0;j<a;j++) {
+					ApplicationList.remove(j);
+				}
+				
 			}
 		}
-		
+
 		System.out.println("총 "+credit+" 학점을 신청하였습니다. \n");
 		System.out.println("________________________________________________\n");	
 
 		// 선수 과목 수강 여부 확인
-		for(String course : ApplicationList) {
-			for(Course_details check : CourseList) {
-				if(check.getCNo().equals(course)) {
-					String prereq =check.getPrereq();
-					if(prereq.equals("null")) {break;}
-					else {
-						if(prereq_satisfied(StudentInfo,prereq )==false) {
-							System.out.println("선수 과목을 수강하지 않으셨습니다. ");
-							System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
-						}
-					}
-				}
-			}
-		}
+
 
 		System.out.println("________________________________________________\n");	
 		System.out.println("수강신청이 정상적으로 처리되었습니다. \n수강신청 과목 : \n");
