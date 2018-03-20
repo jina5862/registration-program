@@ -57,25 +57,28 @@ public class Registration {
 	}	
 
 	public static boolean prereq_satisfied(ArrayList<String> AList) {
+
 		for(String course : AList) {
+			System.out.println(course);
 			for(Course_details check : CourseList) {
 				if(check.getCNo().equals(course)) {
 					String prereq =check.getPrereq();
-					Course_details checkD = new Course_details(prereq);
 					if(prereq.equals("null")) {break;}
 					else {
-						if(StudentInfo.contains(checkD)!=true) {
-							System.out.println("선수 과목을 수강하지 않으셨습니다. ");
-							System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
-							return false;
+						for(Course_details s : StudentInfo) {
+							if(s.getCNo().equals(prereq)) {
+								break;
+							}
 						}
+						System.out.println("선수 과목을 수강하지 않으셨습니다. ");
+						System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
+						return false;
 					}
 				}
 			}
 		}
 		return true;
 	}
-
 
 
 	public static boolean offered_class(String cNo) {
@@ -108,7 +111,9 @@ public class Registration {
 		System.out.println("_________________________________________________________\n");
 
 		while(true) {
+			credit =0;
 			for(int i=0;;i++) {
+
 				System.out.print(i+1+" : ");
 				String course=sc.next();
 				if(!(offered_class(course)==true||course.equals("done"))) {
@@ -135,30 +140,25 @@ public class Registration {
 				else{
 					ApplicationList.add(course);
 				}
-
 			}
 			
+		// 선수 과목 수강 여부 확인
 			if(prereq_satisfied(ApplicationList)==true) {
 				break;
 			}
 			else {
-				System.out.println("다시 신청하세요. ");
-				int a =ApplicationList.size();
-				for(int j=0;j<a;j++) {
-					ApplicationList.remove(j);
-				}
-				
+				System.out.println("다시 신청하세요. \n\n");			
+				//ApplicationList 초기화
+				while(ApplicationList.size()>0) {
+					ApplicationList.remove(0);
+				}	
 			}
 		}
 
-		System.out.println("총 "+credit+" 학점을 신청하였습니다. \n");
 		System.out.println("________________________________________________\n");	
 
-		// 선수 과목 수강 여부 확인
 
-
-		System.out.println("________________________________________________\n");	
-		System.out.println("수강신청이 정상적으로 처리되었습니다. \n수강신청 과목 : \n");
+		System.out.println("수강신청이 정상적으로 처리되었습니다. 총 "+credit+" 학점 신청하였습니다\n\n"+"수강신청 과목 : \n");
 		for(String cno: ApplicationList) {
 			System.out.println(cno);
 		}
