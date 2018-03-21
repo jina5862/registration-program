@@ -11,6 +11,7 @@ public class Registration {
 	static ArrayList<Course_details> CourseList = new ArrayList<Course_details>();
 	static ArrayList<Course_details> StudentInfo = new ArrayList<Course_details>();
 
+	// courses_offered 및 student_info 파일을 읽어 들여 ArrayList<Course_details> 로 저장하는 메소드
 	public static void readFile(ArrayList<Course_details> courses, String filename) throws IOException {
 		String path = "C:/Users/귀욤디욤/Documents/registration-program/src/registration/"+filename;
 
@@ -55,20 +56,27 @@ public class Registration {
 		finally {
 			br.close();}
 	}	
+	// ArrayList<Course_details> 에 특정 과목코드 포함 여부 확인하는 메소드
+	public static boolean contains(ArrayList<Course_details> alist, String cname) {
+		for(Course_details s : alist) {
+			if(s.getCNo().equals(cname)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-	public static boolean prereq_satisfied(ArrayList<String> AList) {
+	//선수과목을 수강하였는지 확인하는 메소드
+	public static boolean prereq_satisfied(ArrayList<Course_details> AList) {
 
-		for(String course : AList) {
-			System.out.println(course);
+		for(Course_details course : AList) {
 			for(Course_details check : CourseList) {
-				if(check.getCNo().equals(course)) {
+				if(check.equals(course)) {
 					String prereq =check.getPrereq();
 					if(prereq.equals("null")) {break;}
 					else {
-						for(Course_details s : StudentInfo) {
-							if(s.getCNo().equals(prereq)) {
-								break;
-							}
+						if(contains(StudentInfo, prereq)) {
+							break;
 						}
 						System.out.println("선수 과목을 수강하지 않으셨습니다. ");
 						System.out.println(check.getCNo()+"의 선수 과목 : "+prereq);
@@ -81,14 +89,31 @@ public class Registration {
 	}
 
 
+
+	// 입력한 과목의 개설 여부를 확인하는 메소드
 	public static boolean offered_class(String cNo) {
 		for(Course_details course : CourseList) {
 			if(course.getCNo().equals(cNo)) {return true;}
 		}
 		return false;
 	}
+
+	// 강의시간이 중복되는지 확인하는 메소드
+	public static boolean check_Time(ArrayList<Course_details> applicationList) {
+
+		for(int j=0;j<applicationList.size()-1;j++) {
+			for(int k=j+1;k<applicationList.size();k++) {
+				if(applicationList.get(j).getCTime().equals(applicationList.get(k).getCTime())){
+					System.out.println(applicationList.get(j).getCNo()+" 와 "+applicationList.get(k).getCNo()+" 의 시간이 겹칩니다. ");
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public static void main(String[] args) {
-		ArrayList<String> ApplicationList = new ArrayList<String>() ;
+		ArrayList<Course_details> ApplicationList = new ArrayList<Course_details>() ;
 		int credit =0;
 		Scanner sc = new Scanner(System.in);
 
@@ -126,23 +151,45 @@ public class Registration {
 						credit+=cNo.getCredit();
 					}
 				}
+
 				if(credit>24) {
 					System.out.println("신청 가능한 학점(24학점)을 초과하셨습니다. ");
+					System.out.println("전 입력하신 과목까지 수강신청 됩니다. ");
+					credit-=3;
+					break;
 				}
 
 				if(course.equals("done")){
 					if(credit<9) {
 						System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
+						i-=1;
+						System.out.println("추가할 과목코드를 입력하시오. ");
+						continue;
 					}
 					break;
 				}
 
 				else{
-					ApplicationList.add(course);
+					for(Course_details s: CourseList) {
+						if(s.getCNo().equals(course)) {
+							ApplicationList.add(s);
+						}
+					}
+
 				}
 			}
 			
-		// 선수 과목 수강 여부 확인
+			// 신청한 강의시간의 시간이 중복되는지 확인하는 메소드 호출
+			if(!check_Time(ApplicationList)) {
+				System.out.println("다시 신청하세요. \n\n");	
+				while(ApplicationList.size()>0) {
+					ApplicationList.remove(0);
+				}
+				continue;
+			}
+
+
+			// 선수 과목 수강 여부 확인하는 메소드 호출
 			if(prereq_satisfied(ApplicationList)==true) {
 				break;
 			}
@@ -159,8 +206,8 @@ public class Registration {
 
 
 		System.out.println("수강신청이 정상적으로 처리되었습니다. 총 "+credit+" 학점 신청하였습니다\n\n"+"수강신청 과목 : \n");
-		for(String cno: ApplicationList) {
-			System.out.println(cno);
+		for(Course_details cno: ApplicationList) {
+			cno.getAllInfo();
 		}
 
 	}

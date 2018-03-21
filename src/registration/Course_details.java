@@ -37,5 +37,12 @@ public class Course_details {
 	public int getCredit() {
 		return this.credit;
 	}
+	public String getCTime() {
+		return this.cTime;
+	}
+	
+	public void getAllInfo() {
+		System.out.println(this.cNo+"  "+this.cTitle+"  "+this.cTime+"  "+this.prof+"  "+this.classroom+"  "+this.credit);
+	}
 
 }
