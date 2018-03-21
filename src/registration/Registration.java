@@ -100,10 +100,17 @@ public class Registration {
 
 	// 강의시간이 중복되는지 확인하는 메소드
 	public static boolean check_Time(ArrayList<Course_details> applicationList) {
-
 		for(int j=0;j<applicationList.size()-1;j++) {
+			StringTokenizer tk= new StringTokenizer(applicationList.get(j).getCNo(), "-");
+			String ctitle= tk.nextToken();
 			for(int k=j+1;k<applicationList.size();k++) {
-				if(applicationList.get(j).getCTime().equals(applicationList.get(k).getCTime())){
+				StringTokenizer tk1= new StringTokenizer(applicationList.get(k).getCNo(), "-");
+				String ctitle_1=tk1.nextToken();
+				if(ctitle.equals(ctitle_1)){
+					System.out.println(ctitle+" 를 중복 신청하셨습니다. ");
+					return false;
+				}
+				else if(applicationList.get(j).getCTime().equals(applicationList.get(k).getCTime())){
 					System.out.println(applicationList.get(j).getCNo()+" 와 "+applicationList.get(k).getCNo()+" 의 시간이 겹칩니다. ");
 					return false;
 				}
@@ -158,7 +165,7 @@ public class Registration {
 					credit-=3;
 					break;
 				}
-
+				
 				if(course.equals("done")){
 					if(credit<9) {
 						System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
