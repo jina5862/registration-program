@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-
 public class Registration {
 	static ArrayList<Course_details> CourseList = new ArrayList<Course_details>();
 	static ArrayList<Course_details> StudentInfo = new ArrayList<Course_details>();
@@ -68,7 +67,6 @@ public class Registration {
 
 	//선수과목을 수강하였는지 확인하는 메소드
 	public static boolean prereq_satisfied(ArrayList<Course_details> AList) {
-
 		for(Course_details course : AList) {
 			for(Course_details check : CourseList) {
 				if(check.equals(course)) {
@@ -88,31 +86,68 @@ public class Registration {
 		return true;
 	}
 
-
-
-	// 입력한 과목의 개설 여부를 확인하는 메소드
-	public static boolean offered_class(String cNo) {
+	public static boolean offered_class(String cNo) {	// 입력한 과목의 개설 여부를 확인하는 메소드
 		for(Course_details course : CourseList) {
 			if(course.getCNo().equals(cNo)) {return true;}
 		}
 		return false;
 	}
 
-	// 강의시간이 중복되는지 확인하는 메소드
+
+	public static ArrayList<Time> CourseTime(String cTime){	// 강의시간을 String 으로 받아 Time(요일, 시작, 끝) 의 arraylist 로 반환하는 함수 
+		int length = cTime.length();
+		String time1, time2;			
+		String day1, day2;
+		StringTokenizer tp= new StringTokenizer(cTime, "/");
+		String c= tp.nextToken();
+
+		if(c.length()>length/2) {		// 해당 수업의 시간이 이틀 모두 같다.
+			day1 = Character.toString(c.charAt(0));
+			time1 =c.substring(2,c.length());
+			day2 = Character.toString(c.charAt(1));
+			time2 = c.substring(2,c.length());
+		}
+		else {		// 수업의 시간이 요일별로다르다. 
+			day1 = Character.toString(c.charAt(0));
+			time1 = c.substring(1,c.length());
+			String c2 = tp.nextToken();
+			day2 = Character.toString(c2.charAt(0));
+			time2 = c2.substring(1, c2.length());
+		}
+
+		ArrayList<Time> timee = new ArrayList<Time>();
+		Time day1111 = new Time(day1, time1);
+		Time day2222 = new Time(day2, time2);
+		timee.add(day1111);
+		timee.add(day2222);
+
+		return timee;
+	}
+
 	public static boolean check_Time(ArrayList<Course_details> applicationList) {
 		for(int j=0;j<applicationList.size()-1;j++) {
+
+			ArrayList<Time> t1 = CourseTime(applicationList.get(j).getCTime());
 			StringTokenizer tk= new StringTokenizer(applicationList.get(j).getCNo(), "-");
 			String ctitle= tk.nextToken();
+
 			for(int k=j+1;k<applicationList.size();k++) {
+				ArrayList<Time> t2 = CourseTime(applicationList.get(k).getCTime());
 				StringTokenizer tk1= new StringTokenizer(applicationList.get(k).getCNo(), "-");
 				String ctitle_1=tk1.nextToken();
-				if(ctitle.equals(ctitle_1)){
+
+				if(ctitle.equals(ctitle_1)){		// 동일한 과목인 경우 
 					System.out.println(ctitle+" 를 중복 신청하셨습니다. ");
 					return false;
 				}
-				else if(applicationList.get(j).getCTime().equals(applicationList.get(k).getCTime())){
-					System.out.println(applicationList.get(j).getCNo()+" 와 "+applicationList.get(k).getCNo()+" 의 시간이 겹칩니다. ");
-					return false;
+				
+				for(Time s : t1) {
+					for(Time t : t2) {
+						if(Time.overlap(s,t)) {
+							System.out.println(applicationList.get(j).getCNo()+"와"+applicationList.get(k).getCNo()+"의 시간이 겹칩니다 ");
+							return false;
+						}
+					}
 				}
 			}
 		}
@@ -149,7 +184,7 @@ public class Registration {
 				System.out.print(i+1+" : ");
 				String course=sc.next();
 				if(!(offered_class(course)==true||course.equals("done"))) {
-					System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하시고 입력하세요. ");
+					System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하고 입력하세요. ");
 					i--;
 					continue;
 				}
@@ -165,7 +200,7 @@ public class Registration {
 					credit-=3;
 					break;
 				}
-				
+
 				if(course.equals("done")){
 					if(credit<9) {
 						System.out.println("신청 가능한 최소 학점은 9학점입니다. ");
@@ -182,12 +217,10 @@ public class Registration {
 							ApplicationList.add(s);
 						}
 					}
-
 				}
 			}
-			
-			// 신청한 강의시간의 시간이 중복되는지 확인하는 메소드 호출
-			if(!check_Time(ApplicationList)) {
+
+			if(!check_Time(ApplicationList)) {		// 신청한 강의시간의 시간이 중복되는지 확인하는 메소드 호출
 				System.out.println("다시 신청하세요. \n\n");	
 				while(ApplicationList.size()>0) {
 					ApplicationList.remove(0);
@@ -195,15 +228,12 @@ public class Registration {
 				continue;
 			}
 
-
-			// 선수 과목 수강 여부 확인하는 메소드 호출
-			if(prereq_satisfied(ApplicationList)==true) {
+			if(prereq_satisfied(ApplicationList)==true) {		// 선수 과목 수강 여부 확인하는 메소드 호출
 				break;
 			}
 			else {
 				System.out.println("다시 신청하세요. \n\n");			
-				//ApplicationList 초기화
-				while(ApplicationList.size()>0) {
+				while(ApplicationList.size()>0) {				//ApplicationList 초기화
 					ApplicationList.remove(0);
 				}	
 			}
