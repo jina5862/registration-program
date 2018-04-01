@@ -1,11 +1,14 @@
 package registration;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 public class Registration {
 	static ArrayList<Course_details> CourseList = new ArrayList<Course_details>();
 	static ArrayList<Course_details> StudentInfo = new ArrayList<Course_details>();
@@ -17,8 +20,8 @@ public class Registration {
 		BufferedReader br = new BufferedReader(new FileReader(path));
 		try {
 			br.readLine();
-			if(filename.equals("courses offered")) {
-				for(int i=0;;i++) {
+			if(filename.equals("courses offered")||filename.equals("student_registration")) {
+				while(true) {
 					String line=br.readLine();
 					if(line ==null) break;
 
@@ -37,7 +40,7 @@ public class Registration {
 				}
 			}
 			else if(filename.equals("student_info")) {
-				for(int i=0;;i++) {
+				while(true){
 					String line=br.readLine();
 					if(line ==null)break;
 
@@ -63,6 +66,27 @@ public class Registration {
 			}
 		}
 		return false;
+	}
+
+	//최종 수강신청 정보를 저장하는 메소드
+	public static void writeFile(ArrayList<Course_details> courses, String filename) {
+		String path = "C:/Users/귀욤디욤/Documents/registration-program/src/registration/"+filename;
+		try{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+			bw.write("\n");
+			for(Course_details cd:courses) {
+				bw.write(cd.getCNo()+"  ");
+				bw.write(cd.getCTitle()+"  ");
+				bw.write(cd.getProf()+"  ");
+				bw.write(cd.getCTime()+"  ");
+				bw.write(cd.getClassroom()+"  ");
+				bw.write(cd.getPrereq()+"  ");
+				bw.write(cd.getCredit()+"\n");
+			}
+			bw.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}	
 	}
 
 	//선수과목을 수강하였는지 확인하는 메소드
@@ -123,7 +147,7 @@ public class Registration {
 
 		return timee;
 	}
-
+	// 과목 혹은 강의 시간이 중복되는지 확인하는 메소드
 	public static boolean check_Time(ArrayList<Course_details> applicationList) {
 		for(int j=0;j<applicationList.size()-1;j++) {
 
@@ -140,7 +164,7 @@ public class Registration {
 					System.out.println(ctitle+" 를 중복 신청하셨습니다. ");
 					return false;
 				}
-				
+
 				for(Time s : t1) {
 					for(Time t : t2) {
 						if(Time.overlap(s,t)) {
@@ -182,7 +206,7 @@ public class Registration {
 			for(int i=0;;i++) {
 
 				System.out.print(i+1+" : ");
-				String course=sc.next();
+				String course=sc.nextLine();
 				if(!(offered_class(course)==true||course.equals("done"))) {
 					System.out.println("과목 코드를 잘못 입력하셨습니다. 다시 확인하고 입력하세요. ");
 					i--;
@@ -238,13 +262,20 @@ public class Registration {
 				}	
 			}
 		}
+		try {
+			writeFile(ApplicationList, "student_registration");		
+		} catch(Exception e) {
+			System.out.println("error occurred");
+		}
 
 		System.out.println("________________________________________________\n");	
-
-
 		System.out.println("수강신청이 정상적으로 처리되었습니다. 총 "+credit+" 학점 신청하였습니다\n\n"+"수강신청 과목 : \n");
-		for(Course_details cno: ApplicationList) {
-			cno.getAllInfo();
+		
+		ArrayList<Course_details> RegistrationList = new ArrayList<Course_details>();
+		try{
+			readFile(RegistrationList, "student_registration");
+		} catch(Exception e) {
+			System.out.println("exception occurred");
 		}
 
 	}

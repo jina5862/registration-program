@@ -40,6 +40,15 @@ public class Course_details {
 	public String getCTime() {
 		return this.cTime;
 	}
+	public String getCTitle() {
+		return this.cTitle;
+	}
+	public String getProf() {
+		return this.prof;
+	}
+	public String getClassroom() {
+		return this.classroom;
+	}
 	
 	public void getAllInfo() {
 		System.out.println(this.cNo+"  "+this.cTitle+"  "+this.cTime+"  "+this.prof+"  "+this.classroom+"  "+this.credit);
